@@ -6,7 +6,6 @@ const int rightMotorPin = 6;
 
 int baseSpeed = 180;
 float steeringGain = 0.4;
-float steeringGain = 0.4;
 float speedReductionGain = 0.2;
 
 void setup() {
