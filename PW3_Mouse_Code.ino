@@ -6,6 +6,8 @@ const int rightMotorPin = 6;
 
 int baseSpeed = 180;
 float steeringGain = 0.4;
+float steeringGain = 0.4;
+float speedReductionGain = 0.2;
 
 void setup() {
   pinMode(leftMotorPin, OUTPUT);
@@ -23,9 +25,16 @@ void loop() {
   // Steering correction
   int correction = (int)(steeringGain * error);
 
-  // Fixed base speed
-  int leftMotorSpeed = baseSpeed - correction;
-  int rightMotorSpeed = baseSpeed + correction;
+  // Reduce speed when turning demand is high
+  int turnDemand = abs(error);
+  int adjustedBaseSpeed = baseSpeed - (int)(speedReductionGain * turnDemand);
+
+  if (adjustedBaseSpeed < minSpeed) {
+    adjustedBaseSpeed = minSpeed;
+  }
+
+  int leftMotorSpeed = adjustedBaseSpeed - correction;
+  int rightMotorSpeed = adjustedBaseSpeed + correction;
 
   // Keep outputs in valid PWM range
   leftMotorSpeed = constrain(leftMotorSpeed, 0, 255);
@@ -40,6 +49,10 @@ void loop() {
   Serial.print(rightSensor);
   Serial.print(" Error: ");
   Serial.print(error);
+  Serial.print(" Turn demand: ");
+  Serial.print(turnDemand);
+  Serial.print(" Base speed: ");
+  Serial.print(adjustedBaseSpeed);
   Serial.print(" Left motor: ");
   Serial.print(leftMotorSpeed);
   Serial.print(" Right motor: ");
